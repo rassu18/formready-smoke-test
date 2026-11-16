@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FormReady — Official DS-160 Visa Photo Validator</title>
+  <meta name="description" content="Verify your U.S. DS-160 visa photo compliance instantly. Prevent $185 rejection with on-device biometric audit.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            govblue: {
+              50: '#f0f5fa',
+              100: '#e1ecf5',
+              700: '#1d4f91',
+              800: '#163c70',
+              900: '#0f294d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes scanline {
+      0% { top: 0%; opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { top: 100%; opacity: 0.8; }
+    }
+    .scanner-line {
+      animation: scanline 1.5s ease-in-out infinite alternate;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- Official-style Header Notice -->
+  <div class="bg-slate-800 text-slate-200 text-xs py-1.5 px-4 text-center tracking-wide font-medium flex items-center justify-center gap-2">
+    <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+    Official Standard: 22 CFR 41.103 &amp; U.S. Department of State Consular Affairs Specifications
+  </div>
+
+  <!-- Main Navigation -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded bg-govblue-700 text-white flex items-center justify-center font-bold text-xl shadow-sm">
+          FR
+        </div>
+        <div>
+          <span class="font-bold text-lg text-slate-900 tracking-tight flex items-center gap-1.5">
+            FormReady
+            <span class="text-[10px] font-semibold bg-govblue-100 text-govblue-800 px-1.5 py-0.5 rounded uppercase">Validator</span>
+          </span>
+          <p class="text-[11px] text-slate-500 hidden sm:block">DS-160 Biometric Pre-Flight Engine</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-100 border border-slate-200 px-2.5 py-1.5 rounded-full">
+        <svg class="w-3.5 h-3.5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 1a9 9 0 100 18 9 9 0 000-18zm3.707 7.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+        </svg>
+        <span>100% Client-Side • Zero Cloud Uploads</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-grow max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full">
+
+    <!-- HERO SECTION (Visible on Initial State) -->
+    <div id="hero-section" class="text-center space-y-4 mb-8">
+      <div class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-red-700 bg-red-50 border border-red-200 px-3 py-1 rounded-full">
+        <svg class="w-3.5 h-3.5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+        </svg>
+        Non-Refundable Filing Fee Risk
+      </div>
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        Don't Risk a $185 Visa Rejection.<br class="hidden sm:inline">
+        <span class="text-govblue-700">Verify Your DS-160 Photo Instantly.</span>
+      </h1>
+      <p class="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">
+        U.S. consulates automatically reject visa applications for improper head ratios, shadows, and eye lines. Run our free biometric pre-flight check before submitting to CEAC.
+      </p>
+    </div>
+
+    <!-- 1. DROPZONE COMPONENT -->
+    <div id="upload-card" class="bg-white rounded-xl border-2 border-dashed border-slate-300 p-8 sm:p-12 text-center hover:border-govblue-700 transition-colors shadow-sm relative">
+      <input type="file" id="file-input" accept="image/jpeg,image/png,image/jpg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+      
+      <div class="space-y-4 pointer-events-none">
+        <div class="w-16 h-16 rounded-full bg-govblue-50 text-govblue-700 mx-auto flex items-center justify-center">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <div>
+          <p class="text-lg font-semibold text-slate-900">Drag &amp; drop your passport photo here</p>
+          <p class="text-sm text-slate-500 mt-1">or click to browse your files (JPEG or PNG)</p>
+        </div>
+        <div class="flex items-center justify-center gap-4 text-xs text-slate-400 pt-2">
+          <span>✓ Max 10 MB</span>
+          <span>•</span>
+          <span>✓ 100% Private (No upload)</span>
+          <span>•</span>
+          <span>✓ Instant Audit</span>
+        </div>
+      </div>
+
+      <!-- Quick Sample Button for testing -->
+      <div class="mt-6 pt-6 border-t border-slate-100 flex items-center justify-center gap-3">
+        <span class="text-xs text-slate-500">Don't have a photo ready?</span>
+        <button type="button" id="use-sample-btn" class="text-xs font-semibold text-govblue-700 hover:text-govblue-800 underline relative z-20">
+          Click here to test with a sample photo
+        </button>
+      </div>
+    </div>
+
+    <!-- 2. SCANNING STATE (Hidden by default) -->
+    <div id="scanning-card" class="hidden bg-white rounded-xl border border-slate-200 p-8 sm:p-12 text-center shadow-md">
+      <div class="max-w-md mx-auto space-y-6">
+        
+        <!-- Preview Box with Scanner Animation -->
+        <div class="relative w-40 h-40 mx-auto rounded-lg overflow-hidden border-2 border-slate-300 shadow-inner bg-slate-100">
+          <img id="scanning-preview" class="w-full h-full object-cover" alt="Uploaded photo preview" src="">
+          <div class="absolute inset-0 bg-blue-500/10 pointer-events-none"></div>
+          <div class="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent scanner-line pointer-events-none shadow-sm"></div>
+          <!-- Guideline Overlay -->
+          <div class="absolute inset-x-4 top-[20%] border-t border-dashed border-yellow-400 text-[9px] text-yellow-300 font-mono text-left pl-1">50% Head Floor</div>
+          <div class="absolute inset-x-4 bottom-[20%] border-b border-dashed border-yellow-400 text-[9px] text-yellow-300 font-mono text-left pl-1">69% Head Cap</div>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">Auditing Against 22 CFR 41.103...</h3>
+          <p id="scan-step-text" class="text-sm font-medium text-govblue-700 mt-1 min-h-[1.5rem] transition-all">
+            Measuring chin-to-crown ratio...
+          </p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
+          <div id="progress-bar-fill" class="bg-govblue-700 h-full rounded-full w-0 transition-all duration-300 ease-out"></div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-left text-xs text-slate-500 pt-2 border-t border-slate-100">
+          <div id="check-ratio" class="flex items-center gap-1.5 text-slate-400">
+            <span class="step-icon">○</span> Chin-to-Crown Ratio
+          </div>
+          <div id="check-eye" class="flex items-center gap-1.5 text-slate-400">
+            <span class="step-icon">○</span> Eye Level Height
+          </div>
+          <div id="check-bg" class="flex items-center gap-1.5 text-slate-400">
+            <span class="step-icon">○</span> Background Uniformity
+          </div>
+          <div id="check-dim" class="flex items-center gap-1.5 text-slate-400">
+            <span class="step-icon">○</span> 600x600 px Dimension
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 3. RESULT STATE (Hidden by default) -->
+    <div id="result-card" class="hidden space-y-6">
+
+      <!-- Prominent Red Alert Card -->
+      <div class="bg-red-50 border-2 border-red-500 rounded-xl p-6 sm:p-8 shadow-sm">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0 text-2xl font-bold">
+            ⚠️
+          </div>
+          <div class="space-y-2 flex-grow">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider bg-red-600 text-white px-2.5 py-0.5 rounded">
+                Pre-Flight Audit Failed
+              </span>
+              <span class="text-xs font-semibold text-red-700">Official CEAC Spec Violation</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-red-900 leading-tight">
+              HIGH REJECTION RISK
+            </h2>
+            <p class="text-base sm:text-lg font-semibold text-red-800">
+              Your chin-to-crown ratio is <span class="underline font-bold">73%</span> (Must be 50%-69%).
+            </p>
+            <p class="text-sm text-red-700 leading-relaxed">
+              The Department of State's automated CEAC system will flag this photo for non-compliant facial proportion. If uploaded, your application risks automated rejection or consular interview denial, forfeiting your <strong>$185 visa fee</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detailed Breakdown Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+        
+        <!-- Photo Preview with Violation Overlay -->
+        <div class="md:col-span-5 flex flex-col items-center justify-center p-4 bg-slate-50 rounded-lg border border-slate-200">
+          <div class="relative w-56 h-56 rounded border border-slate-300 overflow-hidden shadow-sm bg-white">
+            <img id="result-preview" class="w-full h-full object-cover" alt="Analyzed photo" src="">
+            <!-- Red box indicating oversize head -->
+            <div class="absolute inset-x-6 top-3 bottom-6 border-2 border-red-500 bg-red-500/10 pointer-events-none">
+              <span class="absolute top-1 right-1 text-[10px] font-bold text-white bg-red-600 px-1 rounded">73% Head</span>
+            </div>
+            <!-- Green boundary indicating official target -->
+            <div class="absolute inset-x-8 top-8 bottom-12 border border-dashed border-emerald-500 pointer-events-none">
+              <span class="absolute bottom-1 right-1 text-[9px] font-semibold text-emerald-800 bg-emerald-100 px-1 rounded">Target 50-69%</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-500 mt-3 text-center">Overlay shows measured facial boundary vs. official consular envelope.</p>
+        </div>
+
+        <!-- Metric Checklist -->
+        <div class="md:col-span-7 flex flex-col justify-between space-y-4">
+          <h3 class="font-bold text-slate-900 text-base border-b border-slate-200 pb-2">
+            Detailed Biometric Audit Checklist
+          </h3>
+          <ul class="space-y-3 text-sm">
+            <li class="flex items-start justify-between gap-3 bg-red-50/50 p-2.5 rounded border border-red-100">
+              <div class="flex items-start gap-2">
+                <span class="text-red-600 font-bold">✕</span>
+                <div>
+                  <p class="font-semibold text-slate-900">Head Height (Chin to Crown)</p>
+                  <p class="text-xs text-red-700">Measured: 73.4% • Exceeds maximum 69.0% ceiling</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-red-600 uppercase bg-red-100 px-2 py-0.5 rounded">Failed</span>
+            </li>
+            
+            <li class="flex items-start justify-between gap-3 bg-amber-50/50 p-2.5 rounded border border-amber-100">
+              <div class="flex items-start gap-2">
+                <span class="text-amber-600 font-bold">⚠️</span>
+                <div>
+                  <p class="font-semibold text-slate-900">Background Chrominance &amp; Uniformity</p>
+                  <p class="text-xs text-amber-800">Minor shadow gradient detected on left shoulder plane</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-amber-700 uppercase bg-amber-100 px-2 py-0.5 rounded">Warning</span>
+            </li>
+
+            <li class="flex items-start justify-between gap-3 bg-slate-50 p-2.5 rounded border border-slate-200">
+              <div class="flex items-start gap-2">
+                <span class="text-emerald-600 font-bold">✓</span>
+                <div>
+                  <p class="font-semibold text-slate-900">Eye Level Line</p>
+                  <p class="text-xs text-slate-500">Measured: 61.2% (Permitted: 56% - 69%)</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-emerald-700 uppercase bg-emerald-50 px-2 py-0.5 rounded">Passed</span>
+            </li>
+
+            <li class="flex items-start justify-between gap-3 bg-slate-50 p-2.5 rounded border border-slate-200">
+              <div class="flex items-start gap-2">
+                <span class="text-emerald-600 font-bold">✓</span>
+                <div>
+                  <p class="font-semibold text-slate-900">Dimensions &amp; Aspect Ratio</p>
+                  <p class="text-xs text-slate-500">600 x 600 pixels (1:1 square ratio)</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-emerald-700 uppercase bg-emerald-50 px-2 py-0.5 rounded">Passed</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- PAYWALL CARD -->
+      <div class="bg-gradient-to-br from-slate-900 to-govblue-900 text-white rounded-xl p-8 sm:p-10 shadow-xl text-center space-y-6">
+        <div class="max-w-xl mx-auto space-y-3">
+          <span class="text-xs font-bold tracking-widest uppercase text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full">
+            Instant One-Click Solution
+          </span>
+          <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            Fix All Biometric Violations in 10 Seconds
+          </h3>
+          <p class="text-slate-300 text-sm sm:text-base">
+            Our automated on-device AI will re-scale your head to exactly 58%, normalize the background to pure #FFFFFF consular white, and re-export a 100% compliant JPEG under 240 KB.
+          </p>
+        </div>
+
+        <div class="max-w-md mx-auto space-y-3">
+          <!-- Prominent Green Paywall Button -->
+          <button id="paywall-btn" type="button" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-lg sm:text-xl py-4 px-6 rounded-lg shadow-lg hover:shadow-emerald-500/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 border border-emerald-400">
+            <span>[ Auto-Fix &amp; Guarantee Compliance - $4.99 ]</span>
+          </button>
+          
+          <div class="flex items-center justify-center gap-4 text-xs text-slate-400 font-medium">
+            <span>✓ 100% Money-Back Guarantee</span>
+            <span>•</span>
+            <span>✓ One-Time Lifetime Fee</span>
+            <span>•</span>
+            <span>✓ No Subscription</span>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-slate-700/60 max-w-lg mx-auto">
+          <button id="reset-btn" type="button" class="text-xs text-slate-400 hover:text-white underline">
+            ← Test another photograph
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- 4. FAKE DOOR MODAL (Triggered upon clicking $4.99) -->
+  <div id="fake-door-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- Close Button -->
+      <button id="modal-close-btn" type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100">
+        &times;
+      </button>
+
+      <!-- Modal Content State: Form -->
+      <div id="modal-form-state" class="space-y-5 text-center">
+        <div class="w-12 h-12 rounded-full bg-govblue-50 text-govblue-700 mx-auto flex items-center justify-center text-xl font-bold">
+          🔒
+        </div>
+        
+        <div>
+          <span class="text-xs font-bold text-govblue-700 bg-govblue-100 px-2.5 py-1 rounded-full uppercase tracking-wider">
+            Private Beta Status
+          </span>
+          <h3 class="text-2xl font-bold text-slate-900 mt-2">
+            FormReady is at capacity in private beta.
+          </h3>
+          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
+            To maintain our 100% consular acceptance guarantee, automated auto-fixes are currently restricted to batch cohorts. Enter your email below to reserve your priority early access slot at the locked <strong>$4.99 rate</strong>.
+          </p>
+        </div>
+
+        <form id="lead-form" class="space-y-3 text-left">
+          <div>
+            <label for="lead-email" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+              Your Email Address
+            </label>
+            <input type="email" id="lead-email" required placeholder="applicant@example.com" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-govblue-700 focus:border-transparent text-sm">
+          </div>
+          
+          <button type="submit" class="w-full bg-govblue-700 hover:bg-govblue-800 text-white font-bold py-3 px-4 rounded-lg text-sm shadow transition-colors flex items-center justify-center gap-2">
+            <span>Reserve Priority Access ($4.99 Locked)</span>
+            <span>→</span>
+          </button>
+          
+          <p class="text-[11px] text-slate-400 text-center">
+            No spam. We will only contact you when your auto-fix slot opens.
+          </p>
+        </form>
+      </div>
+
+      <!-- Modal Content State: Success (Hidden initially) -->
+      <div id="modal-success-state" class="hidden space-y-4 text-center py-4">
+        <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center text-3xl font-bold">
+          ✓
+        </div>
+        <h3 class="text-2xl font-bold text-slate-900">
+          You're On The Priority List!
+        </h3>
+        <p class="text-sm text-slate-600 max-w-sm mx-auto">
+          We have recorded your email (<strong id="confirmed-email" class="text-slate-900"></strong>) and locked your $4.99 permanent price. You will receive an invitation as soon as the next beta cohort opens.
+        </p>
+        <button id="modal-done-btn" type="button" class="mt-4 px-6 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold">
+          Return to Validator
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-8 px-4 text-center text-xs text-slate-500 mt-12">
+    <div class="max-w-4xl mx-auto space-y-3">
+      <p class="font-medium text-slate-600">
+        FormReady — U.S. Visa DS-160 Biometric Photo Compliance Suite
+      </p>
+      <p class="text-slate-400 max-w-2xl mx-auto text-[11px] leading-relaxed">
+        Disclaimer: FormReady is an independent pre-flight validation utility and is not affiliated with, endorsed by, or sponsored by the U.S. Department of State, CEAC, or any government authority. Standards evaluated in accordance with publicly published 22 CFR 41.103 guidelines.
+      </p>
+      <p class="text-slate-400 text-[10px]">
+        © 2026 FormReady. All client-side biometric processing is performed locally in browser memory.
+      </p>
+    </div>
+  </footer>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // DOM Elements
+    const heroSection = document.getElementById('hero-section');
+    const uploadCard = document.getElementById('upload-card');
+    const scanningCard = document.getElementById('scanning-card');
+    const resultCard = document.getElementById('result-card');
+    const fileInput = document.getElementById('file-input');
+    const useSampleBtn = document.getElementById('use-sample-btn');
+    const scanningPreview = document.getElementById('scanning-preview');
+    const resultPreview = document.getElementById('result-preview');
+    const scanStepText = document.getElementById('scan-step-text');
+    const progressBarFill = document.getElementById('progress-bar-fill');
+    
+    // Check items in scanning state
+    const checkRatio = document.getElementById('check-ratio');
+    const checkEye = document.getElementById('check-eye');
+    const checkBg = document.getElementById('check-bg');
+    const checkDim = document.getElementById('check-dim');
+
+    // Paywall and Modal Elements
+    const paywallBtn = document.getElementById('paywall-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const fakeDoorModal = document.getElementById('fake-door-modal');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    const modalFormState = document.getElementById('modal-form-state');
+    const modalSuccessState = document.getElementById('modal-success-state');
+    const leadForm = document.getElementById('lead-form');
+    const leadEmail = document.getElementById('lead-email');
+    const confirmedEmail = document.getElementById('confirmed-email');
+    const modalDoneBtn = document.getElementById('modal-done-btn');
+
+    // Generate a default high-quality synthetic passport headshot canvas for instant preview
+    function generateSyntheticPassportPhoto() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 600;
+      canvas.height = 600;
+      const ctx = canvas.getContext('2d');
+
+      // Background - slight off-white
+      ctx.fillStyle = '#f3f4f6';
+      ctx.fillRect(0, 0, 600, 600);
+
+      // Torso / shoulders
+      ctx.fillStyle = '#1e293b';
+      ctx.beginPath();
+      ctx.ellipse(300, 560, 180, 120, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Shirt collar
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(270, 440);
+      ctx.lineTo(300, 480);
+      ctx.lineTo(330, 440);
+      ctx.closePath();
+      ctx.fill();
+
+      // Neck
+      ctx.fillStyle = '#e2b397';
+      ctx.fillRect(275, 380, 50, 70);
+
+      // Head / Face (slightly oversize to simulate 73% ratio)
+      ctx.fillStyle = '#f5c6aa';
+      ctx.beginPath();
+      ctx.ellipse(300, 270, 125, 175, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Hair
+      ctx.fillStyle = '#261b14';
+      ctx.beginPath();
+      ctx.arc(300, 220, 130, Math.PI, Math.PI * 2);
+      ctx.fill();
+
+      // Eyes
+      ctx.fillStyle = '#334155';
+      ctx.beginPath();
+      ctx.arc(260, 260, 8, 0, Math.PI * 2);
+      ctx.arc(340, 260, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eyebrows
+      ctx.strokeStyle = '#261b14';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(245, 245); ctx.lineTo(275, 245);
+      ctx.moveTo(325, 245); ctx.lineTo(355, 245);
+      ctx.stroke();
+
+      // Nose
+      ctx.strokeStyle = '#d49b7a';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(300, 265);
+      ctx.lineTo(295, 295);
+      ctx.lineTo(308, 295);
+      ctx.stroke();
+
+      // Mouth (neutral)
+      ctx.strokeStyle = '#b46d54';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(280, 340);
+      ctx.lineTo(320, 340);
+      ctx.stroke();
+
+      return canvas.toDataURL('image/jpeg', 0.92);
+    }
+
+    const defaultSampleDataUrl = generateSyntheticPassportPhoto();
+
+    // Trigger Scan Flow
+    function startAuditFlow(imageDataUrl) {
+      // Set image previews
+      scanningPreview.src = imageDataUrl;
+      resultPreview.src = imageDataUrl;
+
+      // Update UI states
+      heroSection.classList.add('hidden');
+      uploadCard.classList.add('hidden');
+      resultCard.classList.add('hidden');
+      scanningCard.classList.remove('hidden');
+
+      // Reset progress
+      progressBarFill.style.width = '0%';
+      scanStepText.textContent = "Measuring chin-to-crown ratio...";
+
+      // Reset step checks
+      [checkRatio, checkEye, checkBg, checkDim].forEach(el => {
+        el.className = 'flex items-center gap-1.5 text-slate-400';
+        el.querySelector('.step-icon').textContent = '○';
+      });
+
+      // Animate 3-second Scan Step by Step
+      const startTime = performance.now();
+      const totalDuration = 3000; // 3 seconds
+
+      function markPassed(el) {
+        el.className = 'flex items-center gap-1.5 text-emerald-600 font-medium';
+        el.querySelector('.step-icon').textContent = '✓';
+      }
+
+      function markFailed(el) {
+        el.className = 'flex items-center gap-1.5 text-red-600 font-medium';
+        el.querySelector('.step-icon').textContent = '✕';
+      }
+
+      const interval = setInterval(() => {
+        const elapsed = performance.now() - startTime;
+        const progress = Math.min((elapsed / totalDuration) * 100, 100);
+        progressBarFill.style.width = progress + '%';
+
+        if (elapsed > 700 && elapsed <= 1400) {
+          markFailed(checkRatio);
+          scanStepText.textContent = "Checking eye level line (56%-69%)...";
+        } else if (elapsed > 1400 && elapsed <= 2100) {
+          markPassed(checkEye);
+          scanStepText.textContent = "Auditing background uniformity & shadows...";
+        } else if (elapsed > 2100 && elapsed <= 2700) {
+          markPassed(checkBg);
+          scanStepText.textContent = "Validating 600x600 px dimensions & color depth...";
+        } else if (elapsed > 2700) {
+          markPassed(checkDim);
+          scanStepText.textContent = "Compiling official consular audit report...";
+        }
+
+        if (elapsed >= totalDuration) {
+          clearInterval(interval);
+          setTimeout(() => {
+            scanningCard.classList.add('hidden');
+            resultCard.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }, 300);
+        }
+      }, 50);
+    }
+
+    // Handle File Input Selection
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          startAuditFlow(event.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Handle Sample Button
+    useSampleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      startAuditFlow(defaultSampleDataUrl);
+    });
+
+    // Drag and Drop Handling on Upload Card
+    ['dragenter', 'dragover'].forEach(eventName => {
+      uploadCard.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        uploadCard.classList.add('border-govblue-700', 'bg-blue-50/30');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      uploadCard.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        uploadCard.classList.remove('border-govblue-700', 'bg-blue-50/30');
+      }, false);
+    });
+
+    uploadCard.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const file = dt.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          startAuditFlow(event.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Reset Flow
+    resetBtn.addEventListener('click', () => {
+      fileInput.value = '';
+      resultCard.classList.add('hidden');
+      scanningCard.classList.add('hidden');
+      heroSection.classList.remove('hidden');
+      uploadCard.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Paywall Button: Log PAYMENT_INTENT_CLICKED & open modal
+    paywallBtn.addEventListener('click', () => {
+      console.log("PAYMENT_INTENT_CLICKED");
+      fakeDoorModal.classList.remove('hidden');
+      leadEmail.focus();
+    });
+
+    // Modal Close
+    modalCloseBtn.addEventListener('click', () => {
+      fakeDoorModal.classList.add('hidden');
+    });
+
+    modalDoneBtn.addEventListener('click', () => {
+      fakeDoorModal.classList.add('hidden');
+      // Reset modal to form state for subsequent clicks
+      modalFormState.classList.remove('hidden');
+      modalSuccessState.classList.add('hidden');
+      leadEmail.value = '';
+    });
+
+    // Close on backdrop click
+    fakeDoorModal.addEventListener('click', (e) => {
+      if (e.target === fakeDoorModal) {
+        fakeDoorModal.classList.add('hidden');
+      }
+    });
+
+    // Handle Lead Form Submission
+    leadForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = leadEmail.value.trim();
+      if (email) {
+        console.log("LEAD_CAPTURED", email);
+        confirmedEmail.textContent = email;
+        modalFormState.classList.add('hidden');
+        modalSuccessState.classList.remove('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
