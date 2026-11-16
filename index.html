@@ -44,7 +44,7 @@
 
   <!-- Main Navigation -->
   <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded bg-govblue-700 text-white flex items-center justify-center font-bold text-xl shadow-sm">
           FR
@@ -67,7 +67,7 @@
   </header>
 
   <!-- Main Container -->
-  <main class="flex-grow max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full">
+  <main class="flex-grow max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full">
 
     <!-- HERO SECTION (Visible on Initial State) -->
     <div id="hero-section" class="text-center space-y-4 mb-8">
@@ -165,7 +165,7 @@
     <!-- 3. RESULT STATE (Hidden by default) -->
     <div id="result-card" class="hidden space-y-6">
 
-      <!-- Prominent Red Alert Card -->
+      <!-- REQUIRED 1: Prominent Red Error Card -->
       <div class="bg-red-50 border-2 border-red-500 rounded-xl p-6 sm:p-8 shadow-sm">
         <div class="flex items-start gap-4">
           <div class="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0 text-2xl font-bold">
@@ -179,11 +179,8 @@
               <span class="text-xs font-semibold text-red-700">Official CEAC Spec Violation</span>
             </div>
             <h2 class="text-2xl sm:text-3xl font-extrabold text-red-900 leading-tight">
-              HIGH REJECTION RISK
+              ⚠️ HIGH REJECTION RISK. Your chin-to-crown ratio is 73% (Must be 50%-69%).
             </h2>
-            <p class="text-base sm:text-lg font-semibold text-red-800">
-              Your chin-to-crown ratio is <span class="underline font-bold">73%</span> (Must be 50%-69%).
-            </p>
             <p class="text-sm text-red-700 leading-relaxed">
               The Department of State's automated CEAC system will flag this photo for non-compliant facial proportion. If uploaded, your application risks automated rejection or consular interview denial, forfeiting your <strong>$185 visa fee</strong>.
             </p>
@@ -191,7 +188,22 @@
         </div>
       </div>
 
-      <!-- Detailed Breakdown Grid -->
+      <!-- REQUIRED 2: Prominent Green Paywall Button DIRECTLY UNDERNEATH the Error Card -->
+      <div class="space-y-3">
+        <button id="paywall-btn" type="button" class="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-extrabold text-lg sm:text-xl py-4 sm:py-5 px-6 rounded-xl shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-3 border-2 border-emerald-400 cursor-pointer">
+          <span class="tracking-wide">[ Auto-Fix &amp; Guarantee Compliance - $4.99 ]</span>
+        </button>
+
+        <div class="flex items-center justify-center gap-4 text-xs text-slate-500 font-medium">
+          <span class="text-emerald-700 font-semibold">✓ 100% Acceptance Guarantee</span>
+          <span>•</span>
+          <span>✓ One-Time Lifetime Fee</span>
+          <span>•</span>
+          <span>✓ Instant Download</span>
+        </div>
+      </div>
+
+      <!-- Photo Preview & Biometric Overlay -->
       <div class="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
         
         <!-- Photo Preview with Violation Overlay -->
@@ -207,7 +219,7 @@
               <span class="absolute bottom-1 right-1 text-[9px] font-semibold text-emerald-800 bg-emerald-100 px-1 rounded">Target 50-69%</span>
             </div>
           </div>
-          <p class="text-xs text-slate-500 mt-3 text-center">Overlay shows measured facial boundary vs. official consular envelope.</p>
+          <p class="text-xs text-slate-500 mt-3 text-center">Overlay shows measured facial boundary (73%) vs. official consular envelope (50%-69%).</p>
         </div>
 
         <!-- Metric Checklist -->
@@ -260,42 +272,12 @@
               <span class="text-xs font-bold text-emerald-700 uppercase bg-emerald-50 px-2 py-0.5 rounded">Passed</span>
             </li>
           </ul>
-        </div>
-      </div>
 
-      <!-- PAYWALL CARD -->
-      <div class="bg-gradient-to-br from-slate-900 to-govblue-900 text-white rounded-xl p-8 sm:p-10 shadow-xl text-center space-y-6">
-        <div class="max-w-xl mx-auto space-y-3">
-          <span class="text-xs font-bold tracking-widest uppercase text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full">
-            Instant One-Click Solution
-          </span>
-          <h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            Fix All Biometric Violations in 10 Seconds
-          </h3>
-          <p class="text-slate-300 text-sm sm:text-base">
-            Our automated on-device AI will re-scale your head to exactly 58%, normalize the background to pure #FFFFFF consular white, and re-export a 100% compliant JPEG under 240 KB.
-          </p>
-        </div>
-
-        <div class="max-w-md mx-auto space-y-3">
-          <!-- Prominent Green Paywall Button -->
-          <button id="paywall-btn" type="button" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-lg sm:text-xl py-4 px-6 rounded-lg shadow-lg hover:shadow-emerald-500/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 border border-emerald-400">
-            <span>[ Auto-Fix &amp; Guarantee Compliance - $4.99 ]</span>
-          </button>
-          
-          <div class="flex items-center justify-center gap-4 text-xs text-slate-400 font-medium">
-            <span>✓ 100% Money-Back Guarantee</span>
-            <span>•</span>
-            <span>✓ One-Time Lifetime Fee</span>
-            <span>•</span>
-            <span>✓ No Subscription</span>
+          <div class="pt-2 text-center">
+            <button id="reset-btn" type="button" class="text-xs text-slate-500 hover:text-slate-800 underline">
+              ← Test another photograph
+            </button>
           </div>
-        </div>
-
-        <div class="pt-4 border-t border-slate-700/60 max-w-lg mx-auto">
-          <button id="reset-btn" type="button" class="text-xs text-slate-400 hover:text-white underline">
-            ← Test another photograph
-          </button>
         </div>
       </div>
 
@@ -303,7 +285,7 @@
 
   </main>
 
-  <!-- 4. FAKE DOOR MODAL (Triggered upon clicking $4.99) -->
+  <!-- REQUIRED 3: FAKE DOOR MODAL (Triggered upon clicking $4.99) -->
   <div id="fake-door-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative animate-in fade-in zoom-in-95 duration-200">
       
@@ -315,18 +297,18 @@
       <!-- Modal Content State: Form -->
       <div id="modal-form-state" class="space-y-5 text-center">
         <div class="w-12 h-12 rounded-full bg-govblue-50 text-govblue-700 mx-auto flex items-center justify-center text-xl font-bold">
-          🔒
+          ✉️
         </div>
         
-        <div>
+        <div class="space-y-3">
           <span class="text-xs font-bold text-govblue-700 bg-govblue-100 px-2.5 py-1 rounded-full uppercase tracking-wider">
-            Private Beta Status
+            Private Beta
           </span>
-          <h3 class="text-2xl font-bold text-slate-900 mt-2">
-            FormReady is at capacity in private beta.
+          <h3 class="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">
+            Thank you for your interest! FormReady is currently at capacity in private beta.
           </h3>
-          <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-            To maintain our 100% consular acceptance guarantee, automated auto-fixes are currently restricted to batch cohorts. Enter your email below to reserve your priority early access slot at the locked <strong>$4.99 rate</strong>.
+          <p class="text-sm text-slate-600 leading-relaxed">
+            Enter your email below to get early access and a free credit when we open to the public.
           </p>
         </div>
 
@@ -338,13 +320,13 @@
             <input type="email" id="lead-email" required placeholder="applicant@example.com" class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-govblue-700 focus:border-transparent text-sm">
           </div>
           
-          <button type="submit" class="w-full bg-govblue-700 hover:bg-govblue-800 text-white font-bold py-3 px-4 rounded-lg text-sm shadow transition-colors flex items-center justify-center gap-2">
-            <span>Reserve Priority Access ($4.99 Locked)</span>
+          <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-lg text-sm shadow transition-colors flex items-center justify-center gap-2 cursor-pointer">
+            <span>Get Early Access &amp; Free Credit</span>
             <span>→</span>
           </button>
           
           <p class="text-[11px] text-slate-400 text-center">
-            No spam. We will only contact you when your auto-fix slot opens.
+            Zero spam. We will notify you immediately once capacity opens.
           </p>
         </form>
       </div>
@@ -358,7 +340,7 @@
           You're On The Priority List!
         </h3>
         <p class="text-sm text-slate-600 max-w-sm mx-auto">
-          We have recorded your email (<strong id="confirmed-email" class="text-slate-900"></strong>) and locked your $4.99 permanent price. You will receive an invitation as soon as the next beta cohort opens.
+          We have recorded your email (<strong id="confirmed-email" class="text-slate-900"></strong>) and reserved your free credit. We'll be in touch as soon as public slots open.
         </p>
         <button id="modal-done-btn" type="button" class="mt-4 px-6 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold">
           Return to Validator
@@ -629,7 +611,6 @@
 
     modalDoneBtn.addEventListener('click', () => {
       fakeDoorModal.classList.add('hidden');
-      // Reset modal to form state for subsequent clicks
       modalFormState.classList.remove('hidden');
       modalSuccessState.classList.add('hidden');
       leadEmail.value = '';
